@@ -2,7 +2,7 @@
 
 ## 1. Live Deployment & Database Setup
 
-- **Live Deployment URL**: `<DEPLOYED_URL_HERE>` (e.g. `https://sanctum-sanctorum.onrender.com`)
+- **Live Deployment URL**: https://sanctum-sanctorum-29ww.onrender.com
 - **Seeded Member IDs for Testing**:
   - `ID: 1` — **Wong Li** (`wong@example.com`, Tier: `supreme`)
   - `ID: 2` — **Christine Palmer** (`christine@example.com`, Tier: `master`)
