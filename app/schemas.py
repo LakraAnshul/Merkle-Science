@@ -28,7 +28,10 @@ def normalize_isbn13(raw: str) -> str:
     isbn = raw.replace("-", "").replace(" ", "")
     if len(isbn) != 13 or not isbn.isdigit():
         raise ValueError("isbn must contain exactly 13 digits")
-    # TODO: verify the ISBN-13 check digit (see SPEC.md)
+    total = sum(int(d) * (1 if i % 2 == 0 else 3) for i, d in enumerate(isbn[:12]))
+    check_digit = (10 - (total % 10)) % 10
+    if int(isbn[12]) != check_digit:
+        raise ValueError("Invalid ISBN-13 checksum")
     return isbn
 
 
@@ -107,9 +110,10 @@ class MemberCreate(BaseModel):
     @classmethod
     def normalize_email(cls, value: str) -> str:
         """Validate and normalize the email address."""
-        if not EMAIL_PATTERN.match(value):
+        stripped = value.strip().lower()
+        if not EMAIL_PATTERN.match(stripped):
             raise ValueError("email is not valid")
-        return value
+        return stripped
 
 
 class MemberOut(BaseModel):
@@ -141,8 +145,17 @@ class OrderItemIn(BaseModel):
 
 class OrderCreate(BaseModel):
     member_id: int
-    # TODO: reject an empty items list and the same book_id appearing twice (both 422)
     items: List[OrderItemIn]
+
+    @field_validator("items")
+    @classmethod
+    def validate_items(cls, items: List[OrderItemIn]) -> List[OrderItemIn]:
+        if not items:
+            raise ValueError("items cannot be empty")
+        book_ids = [item.book_id for item in items]
+        if len(book_ids) != len(set(book_ids)):
+            raise ValueError("duplicate book_id in items")
+        return items
 
 
 class OrderItemOut(BaseModel):
